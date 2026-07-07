@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required) - User ID
+    //   - displayName: string (required) - Display name
+    //   - photoURL: string (optional) - User photo
+    //   - x: number (required) - X coordinate
+    //   - y: number (required) - Y coordinate
+    //   - room: string (required) - Current room ID
+    //   - status: string (optional) - online/offline/away
+    //   - statusMessage: string (optional) - custom status message
+    //   - lastSeen: number (optional) - Timestamp
+    //   - isMuted: bool (optional) - Mute status
+    //   - isVideoOff: bool (optional) - Video status
+    //   - isScreenSharing: bool (optional) - Screen sharing status
+    //   - peerId: string (optional) - WebRTC Peer ID
+    //
+    // Collection: messages
+    // Document ID: {messageId}
+    // Fields:
+    //   - senderId: string (required) - Sender UID
+    //   - senderName: string (required) - Sender name
+    //   - text: string (required) - Message text
+    //   - timestamp: number (required) - Timestamp
+    //   - room: string (required) - Room ID
+    //
+    // Collection: rooms
+    // Document ID: {roomId}
+    // Fields:
+    //   - id: string (required) - Room ID
+    //   - name: string (required) - Room name
+    //   - type: string (required) - public/private/desk
+    //   - layout: map (optional) - Layout data
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidUser(data) {
+      return data.uid is string && data.uid.size() > 0 &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
+             data.x is number && data.y is number &&
+             data.room is string && data.room.size() > 0 &&
+             (!("statusMessage" in data) || (data.statusMessage is string && data.statusMessage.size() <= 100)) &&
+             (!("isScreenSharing" in data) || data.isScreenSharing is bool) &&
+             (!("peerId" in data) || data.peerId is string) &&
+             (!("focusArea" in data) || data.focusArea == null || (
+                data.focusArea is map &&
+                data.focusArea.x is number &&
+                data.focusArea.y is number &&
+                data.focusArea.width is number &&
+                data.focusArea.height is number
+             )) &&
+             (!("ping" in data) || data.ping == null || (
+                data.ping is map &&
+                data.ping.timestamp is number &&
+                data.ping.fromName is string &&
+                data.ping.fromUid is string
+             ));
+    }
+
+    function isValidMessage(data) {
+      return data.senderId is string && data.senderId == request.auth.uid &&
+             data.senderName is string && data.senderName.size() > 0 &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 1000 &&
+             data.timestamp is number &&
+             data.room is string;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "radumarias@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isValidUser(request.resource.data) &&
+                      request.resource.data.uid == resource.data.uid &&
+                      (isOwner(userId) || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ping'])));
+      allow delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidMessage(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /rooms/{roomId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

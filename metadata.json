@@ -1,0 +1,5 @@
+{
+  "name": "GatherSpace",
+  "description": "A virtual workspace for remote teams with proximity-based voice, video, and text chat.",
+  "requestFramePermissions": ["camera", "microphone", "display-capture"]
+}

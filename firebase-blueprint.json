@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user in the virtual workspace.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "status": { "type": "string", "enum": ["online", "offline", "away"] },
+        "statusMessage": { "type": "string" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "room": { "type": "string" },
+        "lastSeen": { "type": "number" },
+        "isMuted": { "type": "boolean" },
+        "isVideoOff": { "type": "boolean" },
+        "isScreenSharing": { "type": "boolean" },
+        "peerId": { "type": "string" },
+        "focusArea": {
+          "type": ["null", "object"],
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "width": { "type": "number" },
+            "height": { "type": "number" }
+          },
+          "required": ["x", "y", "width", "height"]
+        }
+      },
+      "required": ["uid", "displayName", "x", "y", "room"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A chat message.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "room": { "type": "string" }
+      },
+      "required": ["senderId", "text", "timestamp", "room"]
+    },
+    "Room": {
+      "title": "Room",
+      "description": "A room in the virtual workspace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["public", "private", "desk"] },
+        "layout": { "type": "object" }
+      },
+      "required": ["id", "name", "type"]
+    }
+  },
+  "firestore": {
+    "users/{uid}": {
+      "schema": "User",
+      "description": "User profiles and real-time positions."
+    },
+    "messages/{messageId}": {
+      "schema": "Message",
+      "description": "Global or room-based chat messages."
+    },
+    "rooms/{roomId}": {
+      "schema": "Room",
+      "description": "Room definitions and layouts."
+    }
+  }
+}
