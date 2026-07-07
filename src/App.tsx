@@ -70,13 +70,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Rules require auth for reads; subscribing while signed out kills the
+    // listener with permission-denied and it never recovers.
+    if (!user) {
+      setAllUsers([]);
+      return;
+    }
     const q = query(collection(db, 'users'), where('status', '==', 'online'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const users = snapshot.docs.map(doc => doc.data() as UserProfile);
       setAllUsers(users);
     }, (err) => handleFirestoreError(err, OperationType.LIST, 'users'));
     return () => unsubscribe();
-  }, []);
+  }, [user?.uid]);
 
   const handleLogin = async () => {
     try {
