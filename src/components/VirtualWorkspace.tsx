@@ -66,6 +66,9 @@ interface VirtualWorkspaceProps {
 
 export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspaceProps) {
   const [dimensions, setDimensions] = useState({ width: window.innerWidth - 320, height: window.innerHeight - 64 });
+  const [cameraOffset, setCameraOffset] = useState({ x: 0, y: 0 });
+  const dragStartRef = useRef<{ x: number, y: number, cameraX: number, cameraY: number } | null>(null);
+  const DRAG_THRESHOLD = 10;
   const containerRef = useRef<HTMLDivElement>(null);
   
   const [isDrawing, setIsDrawing] = useState(false);
@@ -201,20 +204,39 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
       setDrawStart(pointerPosition);
       setCurrentTempArea({ x: pointerPosition.x, y: pointerPosition.y, width: 0, height: 0 });
     } else {
-      targetPosRef.current = { x: pointerPosition.x, y: pointerPosition.y };
+      dragStartRef.current = {
+        x: pointerPosition.x,
+        y: pointerPosition.y,
+        cameraX: cameraOffset.x,
+        cameraY: cameraOffset.y
+      };
     }
   };
 
   const handlePointerMove = (e: any) => {
-    if (!isDrawing || !drawStart || !currentTempArea) return;
     const stage = e.target.getStage();
     const pos = stage.getPointerPosition();
-    setCurrentTempArea({
-      x: Math.min(drawStart.x, pos.x),
-      y: Math.min(drawStart.y, pos.y),
-      width: Math.abs(pos.x - drawStart.x),
-      height: Math.abs(pos.y - drawStart.y),
-    });
+    if (!pos) return;
+
+    if (isDrawing && drawStart && currentTempArea) {
+      setCurrentTempArea({
+        x: Math.min(drawStart.x, pos.x),
+        y: Math.min(drawStart.y, pos.y),
+        width: Math.abs(pos.x - drawStart.x),
+        height: Math.abs(pos.y - drawStart.y),
+      });
+      return;
+    }
+
+    if (dragStartRef.current) {
+      const dx = pos.x - dragStartRef.current.x;
+      const dy = pos.y - dragStartRef.current.y;
+      const rawX = dragStartRef.current.cameraX - dx;
+      const rawY = dragStartRef.current.cameraY - dy;
+      const newCameraX = Math.max(0, Math.min(WORLD_WIDTH - dimensions.width, rawX));
+      const newCameraY = Math.max(0, Math.min(WORLD_HEIGHT - dimensions.height, rawY));
+      setCameraOffset({ x: newCameraX, y: newCameraY });
+    }
   };
 
   const handlePointerUp = () => {
@@ -260,6 +282,7 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
         onPointerUp={handlePointerUp}
       >
         <Layer>
+          <Group x={-cameraOffset.x} y={-cameraOffset.y}>
           {/* Grid Background */}
           {Array.from({ length: Math.ceil(dimensions.width / GRID_SIZE) }).map((_, i) => (
             <Rect
@@ -411,6 +434,7 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
             currentUser={user}
             allUsers={allUsers}
           />
+        </Group>
         </Layer>
       </Stage>
     </div>
