@@ -239,7 +239,10 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: any) => {
+    const stage = e.target.getStage();
+    const pointerPosition = stage.getPointerPosition();
+
     if (isDrawing && currentTempArea) {
       if (currentTempArea.width > 20 && currentTempArea.height > 20) {
         setDoc(doc(db, 'users', user.uid), { focusArea: currentTempArea }, { merge: true });
@@ -247,6 +250,19 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
       setIsDrawing(false);
       setDrawStart(null);
       setCurrentTempArea(null);
+      return;
+    }
+
+    if (dragStartRef.current && pointerPosition) {
+      const dx = pointerPosition.x - dragStartRef.current.x;
+      const dy = pointerPosition.y - dragStartRef.current.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < DRAG_THRESHOLD) {
+        const worldPos = { x: pointerPosition.x + cameraOffset.x, y: pointerPosition.y + cameraOffset.y };
+        targetPosRef.current = worldPos;
+      }
+      dragStartRef.current = null;
     }
   };
 
