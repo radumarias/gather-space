@@ -11,6 +11,8 @@ const GRID_SIZE = 50;
 const PLAYER_SIZE = 30;
 const MOVE_SPEED = 10;
 const PROXIMITY_RADIUS = 150;
+const WORLD_WIDTH = 900;
+const WORLD_HEIGHT = 600;
 
 const ROOMS: Room[] = [
   {
@@ -132,8 +134,8 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
           localPosRef.current.y += (dy / dist) * moveStep;
         }
 
-        localPosRef.current.x = Math.max(PLAYER_SIZE, Math.min(dimensions.width - PLAYER_SIZE, localPosRef.current.x));
-        localPosRef.current.y = Math.max(PLAYER_SIZE, Math.min(dimensions.height - PLAYER_SIZE, localPosRef.current.y));
+        localPosRef.current.x = Math.max(PLAYER_SIZE, Math.min(WORLD_WIDTH - PLAYER_SIZE, localPosRef.current.x));
+        localPosRef.current.y = Math.max(PLAYER_SIZE, Math.min(WORLD_HEIGHT - PLAYER_SIZE, localPosRef.current.y));
 
         setRenderTick(t => t + 1);
 
@@ -175,8 +177,8 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
       }
 
       // Boundary checks
-      newX = Math.max(PLAYER_SIZE, Math.min(dimensions.width - PLAYER_SIZE, newX));
-      newY = Math.max(PLAYER_SIZE, Math.min(dimensions.height - PLAYER_SIZE, newY));
+      newX = Math.max(PLAYER_SIZE, Math.min(WORLD_WIDTH - PLAYER_SIZE, newX));
+      newY = Math.max(PLAYER_SIZE, Math.min(WORLD_HEIGHT - PLAYER_SIZE, newY));
 
       localPosRef.current.x = newX;
       localPosRef.current.y = newY;
