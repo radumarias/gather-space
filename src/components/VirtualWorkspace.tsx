@@ -4,6 +4,7 @@ import { Stage, Layer, Rect, Circle, Text, Group, Image as KonvaImage } from 're
 import { UserProfile, Room } from '../types';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { doc, setDoc, collection, onSnapshot, query, where, updateDoc } from 'firebase/firestore';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import throttle from 'lodash/throttle';
 import useImage from 'use-image';
 
@@ -278,23 +279,31 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
   return (
     <div ref={containerRef} className="w-full h-full bg-zinc-900 overflow-hidden relative">
       {canScrollRight && (
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
-          →
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+          <div className="bg-emerald-500/90 text-white rounded-full p-2.5 shadow-lg shadow-emerald-500/50 animate-bounce">
+            <ChevronRight className="w-5 h-5" strokeWidth={3} />
+          </div>
         </div>
       )}
       {canScrollLeft && (
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
-          ←
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+          <div className="bg-emerald-500/90 text-white rounded-full p-2.5 shadow-lg shadow-emerald-500/50 animate-bounce">
+            <ChevronLeft className="w-5 h-5" strokeWidth={3} />
+          </div>
         </div>
       )}
       {canScrollDown && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
-          ↓
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          <div className="bg-emerald-500/90 text-white rounded-full p-2.5 shadow-lg shadow-emerald-500/50 animate-bounce">
+            <ChevronDown className="w-5 h-5" strokeWidth={3} />
+          </div>
         </div>
       )}
       {canScrollUp && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
-          ↑
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          <div className="bg-emerald-500/90 text-white rounded-full p-2.5 shadow-lg shadow-emerald-500/50 animate-bounce">
+            <ChevronUp className="w-5 h-5" strokeWidth={3} />
+          </div>
         </div>
       )}
       {/* HUD for Focus Area */}
