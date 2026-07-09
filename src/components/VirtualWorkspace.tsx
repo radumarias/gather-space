@@ -270,8 +270,33 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
     updateDoc(doc(db, 'users', user.uid), { focusArea: null });
   };
 
+  const canScrollRight = cameraOffset.x + dimensions.width < WORLD_WIDTH;
+  const canScrollLeft = cameraOffset.x > 0;
+  const canScrollDown = cameraOffset.y + dimensions.height < WORLD_HEIGHT;
+  const canScrollUp = cameraOffset.y > 0;
+
   return (
     <div ref={containerRef} className="w-full h-full bg-zinc-900 overflow-hidden relative">
+      {canScrollRight && (
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
+          →
+        </div>
+      )}
+      {canScrollLeft && (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
+          ←
+        </div>
+      )}
+      {canScrollDown && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
+          ↓
+        </div>
+      )}
+      {canScrollUp && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 bg-zinc-800/80 text-emerald-500 rounded-full p-2 pointer-events-none animate-pulse text-xl">
+          ↑
+        </div>
+      )}
       {/* HUD for Focus Area */}
       <div className="absolute top-4 left-4 z-10 flex gap-2">
         <button
