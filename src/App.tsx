@@ -290,7 +290,7 @@ function AppContent({ user, allUsers, handleLogout, toggleMute, toggleVideo, tog
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden relative">
         <MediaRenderer currentUser={user} allUsers={allUsers} isDeafened={isDeafened} />
-        <div className={`flex-1 relative bg-zinc-900 ${mobileView === 'sidebar' ? 'hidden md:block' : 'block'}`}>
+        <div className={`flex-1 relative bg-zinc-900 min-w-0 ${mobileView === 'sidebar' ? 'hidden md:block' : 'block'}`}>
           <VirtualWorkspace user={user} allUsers={allUsers} />
           <LocalMedia cameraStream={cameraStream} screenStream={screenStream} isScreenSharing={isScreenSharing} />
         </div>
