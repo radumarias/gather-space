@@ -186,6 +186,11 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
 
       localPosRef.current.x = newX;
       localPosRef.current.y = newY;
+
+      const newCameraX = Math.max(0, Math.min(WORLD_WIDTH - dimensions.width, newX - dimensions.width / 2));
+      const newCameraY = Math.max(0, Math.min(WORLD_HEIGHT - dimensions.height, newY - dimensions.height / 2));
+      setCameraOffset({ x: newCameraX, y: newCameraY });
+
       setRenderTick(t => t + 1);
 
       const newRoom = checkRoom(newX, newY);
