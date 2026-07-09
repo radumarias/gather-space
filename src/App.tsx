@@ -297,8 +297,8 @@ function AppContent({ user, allUsers, handleLogout, toggleMute, toggleVideo, tog
 
         {/* Sidebar / Chat */}
         <aside className={`
-          ${mobileView === 'sidebar' ? 'flex' : 'hidden md:flex'}
-          w-full md:w-80 border-l border-zinc-800 bg-zinc-950 flex-col shrink-0 z-10
+          ${mobileView === 'sidebar' ? 'fixed inset-0 top-16 bottom-20 z-20 flex' : 'hidden md:flex'}
+          w-full md:w-80 border-l border-zinc-800 bg-zinc-950 flex-col shrink-0 md:relative md:top-0 md:bottom-0
         `}>
           <div className="flex border-b border-zinc-800">
             <button
