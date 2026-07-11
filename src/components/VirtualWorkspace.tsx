@@ -369,22 +369,22 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
         <Layer>
           <Group x={-cameraOffset.x} y={-cameraOffset.y}>
           {/* Grid Background */}
-          {Array.from({ length: Math.ceil(dimensions.width / GRID_SIZE) }).map((_, i) => (
+          {Array.from({ length: Math.ceil(worldWidth  / GRID_SIZE) }).map((_, i) => (
             <Rect
               key={`v-${i}`}
               x={i * GRID_SIZE}
               y={0}
               width={1}
-              height={dimensions.height}
+              height={worldHeight}
               fill="#18181b"
             />
           ))}
-          {Array.from({ length: Math.ceil(dimensions.height / GRID_SIZE) }).map((_, i) => (
+          {Array.from({ length: Math.ceil(worldHeight / GRID_SIZE) }).map((_, i) => (
             <Rect
               key={`h-${i}`}
               x={0}
               y={i * GRID_SIZE}
-              width={dimensions.width}
+              width={worldWidth}
               height={1}
               fill="#18181b"
             />
