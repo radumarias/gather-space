@@ -14,6 +14,7 @@ const MOVE_SPEED = 10;
 const PROXIMITY_RADIUS = 150;
 const MIN_WORLD_WIDTH  = 900;
 const MIN_WORLD_HEIGHT = 600;
+const EDGE_MARGIN = 100;
 
 const ROOMS: Room[] = [
   {
@@ -156,6 +157,27 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
         const newRoom = checkRoom(localPosRef.current.x, localPosRef.current.y);
         updatePosition(user.uid, localPosRef.current.x, localPosRef.current.y, newRoom);
       }
+
+      if (!dragStartRef.current) {
+        setCameraOffset(prevCamera => {
+          let newCameraX = prevCamera.x;
+          let newCameraY = prevCamera.y;
+          if (localPosRef.current.x - prevCamera.x < EDGE_MARGIN) {
+            newCameraX = localPosRef.current.x - EDGE_MARGIN;
+          } else if (localPosRef.current.x - prevCamera.x > dimensions.width - EDGE_MARGIN) {
+            newCameraX = localPosRef.current.x - dimensions.width + EDGE_MARGIN;
+          }
+          if (localPosRef.current.y - prevCamera.y < EDGE_MARGIN) {
+            newCameraY = localPosRef.current.y - EDGE_MARGIN;
+          } else if (localPosRef.current.y - prevCamera.y > dimensions.height - EDGE_MARGIN) {
+            newCameraY = localPosRef.current.y - dimensions.height + EDGE_MARGIN;
+          }
+          newCameraX = Math.max(0, Math.min(worldWidth - dimensions.width, newCameraX));
+          newCameraY = Math.max(0, Math.min(worldHeight - dimensions.height, newCameraY));
+          return { x: newCameraX, y: newCameraY };
+        });
+      }
+
       animationFrameId = requestAnimationFrame(loop);
     };
     animationFrameId = requestAnimationFrame(loop);
@@ -196,10 +218,6 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
 
       localPosRef.current.x = newX;
       localPosRef.current.y = newY;
-
-      const newCameraX = Math.max(0, Math.min(worldWidth - dimensions.width, newX - dimensions.width / 2));
-      const newCameraY = Math.max(0, Math.min(worldHeight - dimensions.height, newY - dimensions.height / 2));
-      setCameraOffset({ x: newCameraX, y: newCameraY });
 
       setRenderTick(t => t + 1);
 
