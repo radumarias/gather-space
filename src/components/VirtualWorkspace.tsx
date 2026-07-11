@@ -207,8 +207,9 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
     if (!pointerPosition) return;
     
     if (isDrawing) {
-      setDrawStart(pointerPosition);
-      setCurrentTempArea({ x: pointerPosition.x, y: pointerPosition.y, width: 0, height: 0 });
+      const worldPos = { x: pointerPosition.x + cameraOffset.x, y: pointerPosition.y + cameraOffset.y };
+      setDrawStart(worldPos);
+      setCurrentTempArea({ x: worldPos.x, y: worldPos.y, width: 0, height: 0 });
     } else {
       dragStartRef.current = {
         x: pointerPosition.x,
@@ -225,11 +226,12 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
     if (!pos) return;
 
     if (isDrawing && drawStart && currentTempArea) {
+      const worldPos = { x: pos.x + cameraOffset.x, y: pos.y + cameraOffset.y };
       setCurrentTempArea({
-        x: Math.min(drawStart.x, pos.x),
-        y: Math.min(drawStart.y, pos.y),
-        width: Math.abs(pos.x - drawStart.x),
-        height: Math.abs(pos.y - drawStart.y),
+        x: Math.min(drawStart.x, worldPos.x),
+        y: Math.min(drawStart.y, worldPos.y),
+        width: Math.abs(worldPos.x - drawStart.x),
+        height: Math.abs(worldPos.y - drawStart.y),
       });
       return;
     }
