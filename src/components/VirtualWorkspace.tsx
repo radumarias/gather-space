@@ -106,10 +106,15 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
-        setDimensions({
+        const newDimensions = {
           width: containerRef.current.offsetWidth,
           height: containerRef.current.offsetHeight
-        });
+        };
+        setDimensions(newDimensions);
+
+        const newCameraX = Math.max(0, Math.min(WORLD_WIDTH - newDimensions.width, localPosRef.current.x - newDimensions.width / 2));
+        const newCameraY = Math.max(0, Math.min(WORLD_HEIGHT - newDimensions.height, localPosRef.current.y - newDimensions.height / 2));
+        setCameraOffset({ x: newCameraX, y: newCameraY });
       }
     };
 
