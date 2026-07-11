@@ -12,8 +12,8 @@ const GRID_SIZE = 50;
 const PLAYER_SIZE = 30;
 const MOVE_SPEED = 10;
 const PROXIMITY_RADIUS = 150;
-const WORLD_WIDTH = 900;
-const WORLD_HEIGHT = 600;
+const MIN_WORLD_WIDTH  = 900;
+const MIN_WORLD_HEIGHT = 600;
 
 const ROOMS: Room[] = [
   {
@@ -67,6 +67,8 @@ interface VirtualWorkspaceProps {
 
 export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspaceProps) {
   const [dimensions, setDimensions] = useState({ width: window.innerWidth - 320, height: window.innerHeight - 64 });
+  const worldWidth = Math.max(MIN_WORLD_WIDTH, dimensions.width);
+  const worldHeight = Math.max(MIN_WORLD_HEIGHT, dimensions.height);
   const [cameraOffset, setCameraOffset] = useState({ x: 0, y: 0 });
   const dragStartRef = useRef<{ x: number, y: number, cameraX: number, cameraY: number } | null>(null);
   const DRAG_THRESHOLD = 10;
@@ -112,8 +114,11 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
         };
         setDimensions(newDimensions);
 
-        const newCameraX = Math.max(0, Math.min(WORLD_WIDTH - newDimensions.width, localPosRef.current.x - newDimensions.width / 2));
-        const newCameraY = Math.max(0, Math.min(WORLD_HEIGHT - newDimensions.height, localPosRef.current.y - newDimensions.height / 2));
+        const newWorldWidth = Math.max(MIN_WORLD_WIDTH, newDimensions.width);
+        const newWorldHeight = Math.max(MIN_WORLD_HEIGHT, newDimensions.height);
+
+        const newCameraX = Math.max(0, Math.min(newWorldWidth - newDimensions.width, localPosRef.current.x - newDimensions.width / 2));
+        const newCameraY = Math.max(0, Math.min(newWorldHeight - newDimensions.height, localPosRef.current.y - newDimensions.height / 2));
         setCameraOffset({ x: newCameraX, y: newCameraY });
       }
     };
@@ -143,8 +148,8 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
           localPosRef.current.y += (dy / dist) * moveStep;
         }
 
-        localPosRef.current.x = Math.max(PLAYER_SIZE, Math.min(WORLD_WIDTH - PLAYER_SIZE, localPosRef.current.x));
-        localPosRef.current.y = Math.max(PLAYER_SIZE, Math.min(WORLD_HEIGHT - PLAYER_SIZE, localPosRef.current.y));
+        localPosRef.current.x = Math.max(PLAYER_SIZE, Math.min(worldWidth - PLAYER_SIZE, localPosRef.current.x));
+        localPosRef.current.y = Math.max(PLAYER_SIZE, Math.min(worldHeight - PLAYER_SIZE, localPosRef.current.y));
 
         setRenderTick(t => t + 1);
 
@@ -186,14 +191,14 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
       }
 
       // Boundary checks
-      newX = Math.max(PLAYER_SIZE, Math.min(WORLD_WIDTH - PLAYER_SIZE, newX));
-      newY = Math.max(PLAYER_SIZE, Math.min(WORLD_HEIGHT - PLAYER_SIZE, newY));
+      newX = Math.max(PLAYER_SIZE, Math.min(worldWidth - PLAYER_SIZE, newX));
+      newY = Math.max(PLAYER_SIZE, Math.min(worldHeight - PLAYER_SIZE, newY));
 
       localPosRef.current.x = newX;
       localPosRef.current.y = newY;
 
-      const newCameraX = Math.max(0, Math.min(WORLD_WIDTH - dimensions.width, newX - dimensions.width / 2));
-      const newCameraY = Math.max(0, Math.min(WORLD_HEIGHT - dimensions.height, newY - dimensions.height / 2));
+      const newCameraX = Math.max(0, Math.min(worldWidth - dimensions.width, newX - dimensions.width / 2));
+      const newCameraY = Math.max(0, Math.min(worldHeight - dimensions.height, newY - dimensions.height / 2));
       setCameraOffset({ x: newCameraX, y: newCameraY });
 
       setRenderTick(t => t + 1);
@@ -246,8 +251,8 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
       const dy = pos.y - dragStartRef.current.y;
       const rawX = dragStartRef.current.cameraX - dx;
       const rawY = dragStartRef.current.cameraY - dy;
-      const newCameraX = Math.max(0, Math.min(WORLD_WIDTH - dimensions.width, rawX));
-      const newCameraY = Math.max(0, Math.min(WORLD_HEIGHT - dimensions.height, rawY));
+      const newCameraX = Math.max(0, Math.min(worldWidth - dimensions.width, rawX));
+      const newCameraY = Math.max(0, Math.min(worldHeight - dimensions.height, rawY));
       setCameraOffset({ x: newCameraX, y: newCameraY });
     }
   };
@@ -283,9 +288,9 @@ export default function VirtualWorkspace({ user, allUsers }: VirtualWorkspacePro
     updateDoc(doc(db, 'users', user.uid), { focusArea: null });
   };
 
-  const canScrollRight = cameraOffset.x + dimensions.width < WORLD_WIDTH;
+  const canScrollRight = cameraOffset.x + dimensions.width < worldWidth;
   const canScrollLeft = cameraOffset.x > 0;
-  const canScrollDown = cameraOffset.y + dimensions.height < WORLD_HEIGHT;
+  const canScrollDown = cameraOffset.y + dimensions.height < worldHeight;
   const canScrollUp = cameraOffset.y > 0;
 
   return (
